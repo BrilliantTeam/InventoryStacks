@@ -16,8 +16,8 @@ public class PlayerInteract implements Listener {
 
 	@EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
 	public void onPlayerInteract(PlayerInteractEvent e) {
-		if (VersionUtil.v1_20_R4.isServerVersionHigher())
-			return;
+		//if (VersionUtil.v1_20_R4.isServerVersionHigher())
+		//	return;
 
 		if (e.getAction() != Action.RIGHT_CLICK_BLOCK)
 			return;
