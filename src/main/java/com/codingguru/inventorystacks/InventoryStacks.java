@@ -1,20 +1,12 @@
 package com.codingguru.inventorystacks;
 
+import com.codingguru.inventorystacks.listeners.*;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.codingguru.inventorystacks.commands.ReloadCmd;
 import com.codingguru.inventorystacks.commands.StackCmd;
 import com.codingguru.inventorystacks.handlers.ItemHandler;
-import com.codingguru.inventorystacks.listeners.BlockPlace;
-import com.codingguru.inventorystacks.listeners.Commands;
-import com.codingguru.inventorystacks.listeners.FurnaceBurn;
-import com.codingguru.inventorystacks.listeners.InventoryClick;
-import com.codingguru.inventorystacks.listeners.InventoryMoveItem;
-import com.codingguru.inventorystacks.listeners.PlayerBucketEmpty;
-import com.codingguru.inventorystacks.listeners.PlayerInteract;
-import com.codingguru.inventorystacks.listeners.PlayerItemConsume;
-import com.codingguru.inventorystacks.listeners.PlayerItemDamage;
 import com.codingguru.inventorystacks.managers.SettingsManager;
 import com.codingguru.inventorystacks.util.ConsoleUtil;
 
@@ -51,6 +43,7 @@ public class InventoryStacks extends JavaPlugin {
 		long itemChangeDelay = InventoryStacks.getInstance().getConfig().getLong("item-change-delay", 2L);
 
 		getServer().getPluginManager().registerEvents(new PlayerBucketEmpty(itemChangeDelay), this);
+		getServer().getPluginManager().registerEvents(new PlayerInteractEntity(itemChangeDelay), this);
 		getServer().getPluginManager().registerEvents(new PlayerItemConsume(itemChangeDelay), this);
 		getServer().getPluginManager().registerEvents(new PlayerItemDamage(itemChangeDelay), this);
 		getServer().getPluginManager().registerEvents(new BlockPlace(itemChangeDelay), this);

@@ -1,12 +1,21 @@
 package com.codingguru.inventorystacks.util;
 
+import com.codingguru.inventorystacks.InventoryStacks;
+import com.codingguru.inventorystacks.handlers.ItemHandler;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Map;
+
 public class ItemUtil {
-	
+
+	private static boolean usingFolia() {
+		return ItemHandler.getInstance().getServerType() == ServerTypeUtil.FOLIA;
+	}
+
 	public static boolean addItemToBrewingStand(Inventory inventory, ItemStack item) {
 		ItemStack slot1 = inventory.getItem(0);
 		ItemStack slot2 = inventory.getItem(1);
@@ -27,6 +36,10 @@ public class ItemUtil {
 	}
 
 	public static void addItem(Player player, ItemStack item) {
+		if (player == null || item == null || item.getType() == Material.AIR || item.getAmount() <= 0) {
+			return;
+		}
+
 		int amount = item.getAmount();
 		int maxAmount = item.getMaxStackSize();
 
@@ -48,10 +61,30 @@ public class ItemUtil {
 	}
 
 	private static void add(Player player, ItemStack item) {
-		if (player.getInventory().firstEmpty() == -1) {
-			player.getWorld().dropItemNaturally(player.getLocation(), item);
+		InventoryStacks plugin = InventoryStacks.getInstance();
+
+		if (usingFolia()) {
+			player.getScheduler().run(plugin, task -> addInternal(player, item), null);
 		} else {
-			player.getInventory().addItem(item);
+			Bukkit.getScheduler().runTask(plugin, () -> addInternal(player, item));
+		}
+	}
+
+	private static void addInternal(Player player, ItemStack item) {
+		if (!player.isOnline()) {
+			return;
+		}
+
+		Map<Integer, ItemStack> leftover = player.getInventory().addItem(item);
+		if (leftover.isEmpty()) {
+			return;
+		}
+
+		for (ItemStack lf : leftover.values()) {
+			if (lf == null || lf.getType() == Material.AIR || lf.getAmount() <= 0) {
+				continue;
+			}
+			player.getWorld().dropItemNaturally(player.getLocation(), lf);
 		}
 	}
 
