@@ -1,6 +1,7 @@
 package com.codingguru.inventorystacks;
 
 import com.codingguru.inventorystacks.listeners.*;
+import com.codingguru.inventorystacks.util.ServerTypeUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -53,6 +54,24 @@ public class InventoryStacks extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new InventoryMoveItem(), this);
 		getServer().getPluginManager().registerEvents(new FurnaceBurn(), this);
 		getServer().getPluginManager().registerEvents(new PlayerInteract(), this);
+
+		if (ItemHandler.getInstance().getServerType() != ServerTypeUtil.SPIGOT) {
+			try {
+				Class<?> clazz = Class.forName(
+						"com.codingguru.inventorystacks.listeners.BlockDispense"
+				);
+				Object listener = clazz
+						.getConstructor(long.class)
+						.newInstance(itemChangeDelay);
+
+				getServer().getPluginManager().registerEvents(
+						(org.bukkit.event.Listener) listener,
+						this
+				);
+			} catch (Throwable t) {
+				getLogger().warning("Paper listener not available, skipped.");
+			}
+		}
 
 		settingsManager = new SettingsManager();
 		settingsManager.setup(this);
