@@ -1,5 +1,6 @@
 package com.codingguru.inventorystacks.listeners;
 
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Axolotl;
@@ -11,7 +12,6 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import com.codingguru.inventorystacks.scheduler.ChangeItemInHandTask;
 import com.codingguru.inventorystacks.scheduler.ChangeItemInHandWithItemTask;
 import com.codingguru.inventorystacks.util.VersionUtil;
 
@@ -27,7 +27,10 @@ public class PlayerInteractEntity implements Listener {
     public void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
         if (!VersionUtil.v1_17_R1.isServerVersionHigher()) return;
 
-        // 1. Entity
+        if (e.getPlayer().getGameMode() == GameMode.CREATIVE) {
+            return;
+        }
+
         if (!(e.getRightClicked() instanceof Axolotl))
             return;
 
@@ -38,7 +41,6 @@ public class PlayerInteractEntity implements Listener {
                 return;
         }
 
-        // 2. Player Item
         Player player = e.getPlayer();
         ItemStack holding;
 
