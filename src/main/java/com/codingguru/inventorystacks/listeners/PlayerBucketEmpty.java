@@ -42,12 +42,16 @@ public class PlayerBucketEmpty implements Listener {
             return;
         }
 
+        if (VersionUtil.v1_21_R1.isServerVersionHigher()) {
+            return;
+        }
+
         Material bucketMat = XMaterialUtil.BUCKET.parseMaterial();
         ItemStack clone = holding.clone();
         clone.setAmount(holding.getAmount() - 1);
-        
+
         ChangeItemInHandWithItemTask changeItemTask = new ChangeItemInHandWithItemTask(
-            player, 
+            player,
             clone,
             new ItemStack(bucketMat),
             bucketMat
