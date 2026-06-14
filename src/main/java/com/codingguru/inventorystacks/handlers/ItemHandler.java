@@ -166,7 +166,7 @@ public class ItemHandler {
 			XMaterialUtil xMaterial = foundMaterial.get();
 			Material material = xMaterial.parseMaterial();
 
-			if (material == Material.AIR) {
+			if (material == null || material == Material.AIR) {
 				ConsoleUtil.warning(
 						"Could not find a valid material with the name: " + materialName + ". Skipping this entry.");
 				continue;

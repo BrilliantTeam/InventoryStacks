@@ -176,6 +176,13 @@ public final class ReflectionUtil {
 
 			XMaterialUtil xMaterial = foundMaterial.get();
 			Material material = xMaterial.parseMaterial();
+
+			if (material == null || material == Material.AIR) {
+				ConsoleUtil.warning(
+						"Could not find a valid material with the name: " + name + ". Skipping this entry.");
+				continue;
+			}
+
 			int defaultSize = getDefaultStackValue(Material.class, material, "maxStack", name);
 			ItemHandler.getInstance().getCachedMaterialSizes().put(xMaterial, defaultSize);
 			setClassField(Material.class, material, "maxStack", stackSize, name);
