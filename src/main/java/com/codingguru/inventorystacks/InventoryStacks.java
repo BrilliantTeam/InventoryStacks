@@ -54,6 +54,7 @@ public class InventoryStacks extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new InventoryMoveItem(), this);
 		getServer().getPluginManager().registerEvents(new FurnaceBurn(), this);
 		getServer().getPluginManager().registerEvents(new PlayerInteract(), this);
+		getServer().getPluginManager().registerEvents(new OminousBannerPin(), this);
 
 		if (ItemHandler.getInstance().getServerType() != ServerTypeUtil.SPIGOT) {
 			try {
