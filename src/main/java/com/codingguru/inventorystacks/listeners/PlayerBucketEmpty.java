@@ -52,6 +52,7 @@ public class PlayerBucketEmpty implements Listener {
 
         ChangeItemInHandWithItemTask changeItemTask = new ChangeItemInHandWithItemTask(
             player,
+            e.getHand(),
             clone,
             new ItemStack(bucketMat),
             bucketMat

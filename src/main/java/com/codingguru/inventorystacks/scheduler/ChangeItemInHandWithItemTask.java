@@ -4,7 +4,9 @@ import java.lang.ref.WeakReference;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 import com.codingguru.inventorystacks.util.ItemUtil;
 import com.codingguru.inventorystacks.util.VersionUtil;
@@ -15,9 +17,16 @@ public class ChangeItemInHandWithItemTask extends Schedule {
     private final ItemStack item;
     private final ItemStack addedItem;
     private final Material material;
+    private final EquipmentSlot hand;
 
     public ChangeItemInHandWithItemTask(Player player, ItemStack item, ItemStack addedItem, Material material) {
+        this(player, null, item, addedItem, material);
+    }
+
+    public ChangeItemInHandWithItemTask(Player player, EquipmentSlot hand, ItemStack item, ItemStack addedItem,
+            Material material) {
         this.player = new WeakReference<Player>(player);
+        this.hand = hand;
         this.item = item;
         this.addedItem = addedItem;
         this.material = material;
@@ -40,18 +49,18 @@ public class ChangeItemInHandWithItemTask extends Schedule {
             return true;
         }
 
-        ItemStack mainHand = player.getInventory().getItemInMainHand();
-        ItemStack offHand = player.getInventory().getItemInOffHand();
+        PlayerInventory inventory = player.getInventory();
 
-        if (mainHand.getType() == mat) {
-            player.getInventory().setItemInMainHand(item);
+        if (hand != EquipmentSlot.OFF_HAND && inventory.getItemInMainHand().getType() == mat) {
+            inventory.setItemInMainHand(item);
             return true;
-        } else if (offHand.getType() == mat) {
-            player.getInventory().setItemInOffHand(item);
-            return true;
-        } else {
-            ItemUtil.addItem(player, item);
-            return false;
         }
+
+        if (hand != EquipmentSlot.HAND && inventory.getItemInOffHand().getType() == mat) {
+            inventory.setItemInOffHand(item);
+            return true;
+        }
+
+        return false;
     }
 }

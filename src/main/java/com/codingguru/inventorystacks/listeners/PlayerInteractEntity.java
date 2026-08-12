@@ -65,6 +65,7 @@ public class PlayerInteractEntity implements Listener {
 
         ChangeItemInHandWithItemTask changeItemTask = new ChangeItemInHandWithItemTask(
                 player,
+                e.getHand(),
                 clone,
                 new ItemStack(Material.WATER_BUCKET, 1),
                 Material.WATER_BUCKET
