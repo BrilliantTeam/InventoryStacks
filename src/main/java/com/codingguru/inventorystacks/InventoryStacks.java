@@ -21,6 +21,7 @@ public class InventoryStacks extends JavaPlugin {
 
 	public void onEnable() {
 		INSTANCE = this;
+		saveDefaultConfig();
 
 		boolean setupSuccessful = ItemHandler.getInstance().setupServerVersion();
 
@@ -32,8 +33,6 @@ public class InventoryStacks extends JavaPlugin {
 			Bukkit.getPluginManager().disablePlugin(this);
 			return;
 		}
-
-		saveDefaultConfig();
 
 		ConsoleUtil.sendPluginStartSetup();
 

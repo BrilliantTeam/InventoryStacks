@@ -71,7 +71,19 @@ public class ItemHandler {
 		setupServerType();
 
 		if (versionFound.equalsIgnoreCase("craftbukkit")) {
-			if (Bukkit.getBukkitVersion().startsWith("1.21.4")) {
+			if (Bukkit.getBukkitVersion().startsWith("1.21.11")) {
+				serverVersion = VersionUtil.v1_21_R7;
+				return true;
+			} else if (Bukkit.getBukkitVersion().startsWith("1.21.10") || Bukkit.getBukkitVersion().startsWith("1.21.9")) {
+				serverVersion = VersionUtil.v1_21_R6;
+				return true;
+			} else if (Bukkit.getBukkitVersion().startsWith("1.21.8") || Bukkit.getBukkitVersion().startsWith("1.21.7") || Bukkit.getBukkitVersion().startsWith("1.21.6")) {
+				serverVersion = VersionUtil.v1_21_R5;
+				return true;
+			} else if (Bukkit.getBukkitVersion().startsWith("1.21.5")) {
+				serverVersion = VersionUtil.v1_21_R4;
+				return true;
+			} else if (Bukkit.getBukkitVersion().startsWith("1.21.4")) {
 				serverVersion = VersionUtil.v1_21_R3;
 				return true;
 			} else if (Bukkit.getBukkitVersion().startsWith("1.21.3")) {

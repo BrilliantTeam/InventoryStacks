@@ -11,8 +11,22 @@ import com.codingguru.inventorystacks.InventoryStacks;
 import com.codingguru.inventorystacks.handlers.ItemHandler;
 
 public final class ReflectionUtil {
+	private static final boolean MATERIAL_HAS_MAX_STACK = hasField(Material.class, "maxStack");
+
+	private static boolean hasField(Class<?> clas, String fieldName) {
+		try {
+			clas.getDeclaredField(fieldName);
+			return true;
+		} catch (NoSuchFieldException | SecurityException e) {
+			return false;
+		}
+	}
 
 	public static int getDefaultStackValue(Class<?> clas, Material mat, String fieldName, String name) {
+		if (clas == Material.class && !MATERIAL_HAS_MAX_STACK) {
+			return mat.getMaxStackSize();
+		}
+
 		int defaultSize = 1; // More safe than using 64 as could be tools, armour, etc
 
 		Field currentField;
@@ -42,6 +56,10 @@ public final class ReflectionUtil {
 	}
 
 	public static boolean setClassField(Class<?> clas, Object instance, String fieldName, int value, String name) {
+		if (clas == Material.class && !MATERIAL_HAS_MAX_STACK) {
+			return true;
+		}
+
 		Field currentField;
 		try {
 			currentField = clas.getDeclaredField(fieldName);
@@ -67,6 +85,15 @@ public final class ReflectionUtil {
 	}
 
 	public static boolean setItemField(String materialName, int stack) {
+		if (VersionUtil.v1_20_R4.isServerVersionHigher()) {
+			Object componentItem = getNmsItem(materialName);
+			if (componentItem == null) {
+				ConsoleUtil.warning("Failed to set the max item stack size of: " + materialName + ".");
+				return false;
+			}
+			return setComponentField(componentItem, materialName, stack);
+		}
+
 		Field itemField;
 		Object item;
 
@@ -93,6 +120,21 @@ public final class ReflectionUtil {
 
 		return setClassField(ItemHandler.getInstance().getItemClass(), item,
 				ItemHandler.getInstance().getServerVersion().getFieldName(), stack, materialName);
+	}
+
+	private static Object getNmsItem(String materialName) {
+		Material material = Material.matchMaterial(materialName);
+		if (material == null) {
+			return null;
+		}
+
+		try {
+			Class<?> craftMagicNumbers = Class.forName("org.bukkit.craftbukkit.util.CraftMagicNumbers");
+			return craftMagicNumbers.getMethod("getItem", Material.class).invoke(null, material);
+		} catch (ReflectiveOperationException | SecurityException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	private static Field findItemClassFromName(String materialName) {
@@ -131,6 +173,30 @@ public final class ReflectionUtil {
 	}
 
 	public static void updateAllItems(List<String> exemptMaterials, int stackSize) {
+		if (VersionUtil.v1_20_R4.isServerVersionHigher()) {
+			for (XMaterialUtil xMaterial : XMaterialUtil.VALUES) {
+				Material material = xMaterial.parseMaterial();
+				if (material == null || material == Material.AIR || !material.isItem()) {
+					continue;
+				}
+
+				String name = material.name().toLowerCase(java.util.Locale.ROOT);
+				if (exemptMaterials.contains(name)) {
+					ConsoleUtil.info("Material: " + name + " is whitelisted. Skipping this entry.");
+					continue;
+				}
+
+				int defaultSize = getDefaultStackValue(Material.class, material, "maxStack", name);
+				ItemHandler.getInstance().getCachedMaterialSizes().put(xMaterial, defaultSize);
+				setClassField(Material.class, material, "maxStack", stackSize, name);
+
+				if (!InventoryStacks.getInstance().getConfig().getBoolean("only-stack-via-command")) {
+					setItemField(name, stackSize);
+				}
+			}
+			return;
+		}
+
 		for (Field field : ItemHandler.getInstance().getItemsClass().getFields()) {
 			Object found;
 
