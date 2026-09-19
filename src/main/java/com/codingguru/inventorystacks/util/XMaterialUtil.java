@@ -1862,7 +1862,39 @@ public enum XMaterialUtil {
     COPPER_NAUTILUS_ARMOR,
     // 26.1
     GOLDEN_DANDELION,
-    POTTED_GOLDEN_DANDELION;
+    POTTED_GOLDEN_DANDELION,
+    // 26.2
+    SULFUR,
+    SULFUR_SLAB,
+    SULFUR_STAIRS,
+    SULFUR_WALL,
+    CHISELED_SULFUR,
+    POLISHED_SULFUR,
+    POLISHED_SULFUR_SLAB,
+    POLISHED_SULFUR_STAIRS,
+    POLISHED_SULFUR_WALL,
+    SULFUR_BRICKS,
+    SULFUR_BRICK_SLAB,
+    SULFUR_BRICK_STAIRS,
+    SULFUR_BRICK_WALL,
+    SULFUR_SPIKE,
+    POTENT_SULFUR,
+    SULFUR_CUBE_BUCKET,
+    SULFUR_CUBE_SPAWN_EGG,
+    CINNABAR,
+    CINNABAR_SLAB,
+    CINNABAR_STAIRS,
+    CINNABAR_WALL,
+    CHISELED_CINNABAR,
+    POLISHED_CINNABAR,
+    POLISHED_CINNABAR_SLAB,
+    POLISHED_CINNABAR_STAIRS,
+    POLISHED_CINNABAR_WALL,
+    CINNABAR_BRICKS,
+    CINNABAR_BRICK_SLAB,
+    CINNABAR_BRICK_STAIRS,
+    CINNABAR_BRICK_WALL,
+    MUSIC_DISC_BOUNCE;
 
 
     /**
@@ -2625,10 +2657,11 @@ public enum XMaterialUtil {
 
         static { // This needs to be right below VERSION because of initialization order.
             String version = Bukkit.getVersion();
-            Matcher matcher = Pattern.compile("MC: \\d\\.(\\d+)").matcher(version);
+            Matcher matcher = Pattern.compile("MC: (\\d+)\\.(\\d+)").matcher(version);
 
-            if (matcher.find()) VERSION = Integer.parseInt(matcher.group(1));
-            else throw new IllegalArgumentException("Failed to parse server version from: " + version);
+            if (matcher.find()) {
+                VERSION = "1".equals(matcher.group(1)) ? Integer.parseInt(matcher.group(2)) : Integer.MAX_VALUE;
+            } else throw new IllegalArgumentException("Failed to parse server version from: " + version);
         }
 
         /**

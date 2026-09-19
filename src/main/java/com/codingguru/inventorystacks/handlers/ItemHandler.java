@@ -38,6 +38,7 @@ public class ItemHandler {
 
 	private Method getItemNameMethod;
 	private Method componentMapPutMethod;
+	private Method itemComponentsMethod;
 
 	private Field itemsComponentsField;
 	private Field componentsMapField;
@@ -71,7 +72,10 @@ public class ItemHandler {
 		setupServerType();
 
 		if (versionFound.equalsIgnoreCase("craftbukkit")) {
-			if (Bukkit.getBukkitVersion().startsWith("1.21.11")) {
+			if (Bukkit.getBukkitVersion().startsWith("26.")) {
+				serverVersion = VersionUtil.v26_2_R1;
+				return true;
+			} else if (Bukkit.getBukkitVersion().startsWith("1.21.11")) {
 				serverVersion = VersionUtil.v1_21_R7;
 				return true;
 			} else if (Bukkit.getBukkitVersion().startsWith("1.21.10") || Bukkit.getBukkitVersion().startsWith("1.21.9")) {
@@ -146,17 +150,24 @@ public class ItemHandler {
 			try {
 				dataComponentsClass = Class.forName("net.minecraft.core.component.DataComponents");
 				maxStackSize = dataComponentsClass.getField(serverType.getMaxStackField()).get(null);
-				itemsComponentsField = itemClass.getDeclaredField(serverType.getItemComponentsField());
-				itemsComponentsField.setAccessible(true);
 
-				Object itemComponents = itemsComponentsField.get(itemsClass.getFields()[0].get(null));
+				Object sampleItem = itemsClass.getFields()[0].get(null);
+				Object itemComponents;
+
+				try {
+					itemsComponentsField = itemClass.getDeclaredField(serverType.getItemComponentsField());
+					itemsComponentsField.setAccessible(true);
+					itemComponents = itemsComponentsField.get(sampleItem);
+				} catch (NoSuchFieldException e) {
+					itemComponentsMethod = itemClass.getMethod(serverType.getItemComponentsField());
+					itemComponents = itemComponentsMethod.invoke(sampleItem);
+				}
 
 				componentsMapField = itemComponents.getClass().getDeclaredField(serverType.getComponentsMapField());
 				componentsMapField.setAccessible(true);
 				componentMapPutMethod = componentsMapField.getType().getMethod("put",
 						new Class[] { Object.class, Object.class });
-			} catch (SecurityException | ClassNotFoundException | IllegalArgumentException | IllegalAccessException
-					| NoSuchFieldException | NoSuchMethodException e) {
+			} catch (SecurityException | IllegalArgumentException | ReflectiveOperationException e) {
 				e.printStackTrace();
 			}
 		}
@@ -269,6 +280,10 @@ public class ItemHandler {
 
 	public Field getItemComponentsField() {
 		return itemsComponentsField;
+	}
+
+	public Object getItemComponents(Object item) throws ReflectiveOperationException {
+		return itemComponentsMethod != null ? itemComponentsMethod.invoke(item) : itemsComponentsField.get(item);
 	}
 
 	public Method getComponentMapPutMethod() {

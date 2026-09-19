@@ -55,7 +55,9 @@ public enum VersionUtil {
 	v1_21_R4("net.minecraft.world.item.Item", "net.minecraft.world.item.Items", "l", "", 99, 33),
 	v1_21_R5("net.minecraft.world.item.Item", "net.minecraft.world.item.Items", "l", "", 99, 34),
 	v1_21_R6("net.minecraft.world.item.Item", "net.minecraft.world.item.Items", "l", "", 99, 35),
-	v1_21_R7("net.minecraft.world.item.Item", "net.minecraft.world.item.Items", "l", "", 99, 36);
+	v1_21_R7("net.minecraft.world.item.Item", "net.minecraft.world.item.Items", "l", "", 99, 36),
+
+	v26_2_R1("net.minecraft.world.item.Item", "net.minecraft.world.item.Items", "getDescriptionId", "", 99, 37);
 
 	private final String itemClass;
 	private final String itemsClass;

@@ -3,7 +3,7 @@ package com.codingguru.inventorystacks.util;
 public enum ServerTypeUtil {
 
 	SPIGOT("c", "c", "c"),
-	FOLIA("c", "c", "c"),
+	FOLIA("MAX_STACK_SIZE", "components", "map"),
 	PAPER("MAX_STACK_SIZE", "components", "map");
 	// PURPUR,
 

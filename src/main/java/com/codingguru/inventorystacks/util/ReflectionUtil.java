@@ -261,11 +261,11 @@ public final class ReflectionUtil {
 
 	public static boolean setComponentField(Object item, String materialName, int stack) {
 		try {
-			Object components = ItemHandler.getInstance().getItemComponentsField().get(item);
+			Object components = ItemHandler.getInstance().getItemComponents(item);
 			ItemHandler.getInstance().getComponentMapPutMethod().invoke(
 					ItemHandler.getInstance().getComponentsMapField().get(components),
 					new Object[] { ItemHandler.getInstance().getMaxStackSize(), Integer.valueOf(stack) });
-		} catch (IllegalArgumentException | IllegalAccessException | SecurityException | InvocationTargetException e) {
+		} catch (IllegalArgumentException | SecurityException | ReflectiveOperationException e) {
 			e.printStackTrace();
 			ConsoleUtil.warning("Failed to set the max item stack size of: " + materialName + ".");
 			return false;
