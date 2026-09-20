@@ -84,6 +84,11 @@ public final class ReflectionUtil {
 		return true;
 	}
 
+	public static boolean isUnstackableItem(Material material, int stack) {
+		return stack > 1 && VersionUtil.v26_2_R1.isServerVersionHigher()
+				&& material != null && material.getMaxDurability() > 0;
+	}
+
 	public static boolean setItemField(String materialName, int stack) {
 		if (VersionUtil.v1_20_R4.isServerVersionHigher()) {
 			Object componentItem = getNmsItem(materialName);
@@ -177,6 +182,10 @@ public final class ReflectionUtil {
 			for (XMaterialUtil xMaterial : XMaterialUtil.VALUES) {
 				Material material = xMaterial.parseMaterial();
 				if (material == null || material == Material.AIR || !material.isItem()) {
+					continue;
+				}
+
+				if (isUnstackableItem(material, stackSize)) {
 					continue;
 				}
 

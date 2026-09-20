@@ -197,6 +197,12 @@ public class ItemHandler {
 
 			int stackSize = materialListRegex.get(materialName);
 
+			if (ReflectionUtil.isUnstackableItem(material, stackSize)) {
+				ConsoleUtil.warning("Skipping " + materialName
+						+ ": damageable items cannot be stacked on this server version.");
+				continue;
+			}
+
 			String name = xMaterial.name();
 			int defaultSize = ReflectionUtil.getDefaultStackValue(Material.class, material, "maxStack",
 					name.toLowerCase());
