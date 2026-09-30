@@ -15,6 +15,7 @@ public class InventoryUpdateTask extends Schedule {
 	@Override
 	public void run() {
 		Player player = this.player.get();
-		player.updateInventory();
+		if (player != null)
+			player.updateInventory();
 	}
 }

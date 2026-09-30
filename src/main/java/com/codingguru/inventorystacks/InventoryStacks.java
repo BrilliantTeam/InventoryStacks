@@ -47,6 +47,7 @@ public class InventoryStacks extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new PlayerItemConsume(itemChangeDelay), this);
 		getServer().getPluginManager().registerEvents(new PlayerItemDamage(itemChangeDelay), this);
 		getServer().getPluginManager().registerEvents(new BlockPlace(itemChangeDelay), this);
+		getServer().getPluginManager().registerEvents(new PlayerBucketFill(), this);
 
 		getServer().getPluginManager().registerEvents(new InventoryClick(), this);
 		getServer().getPluginManager().registerEvents(new Commands(), this);

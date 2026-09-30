@@ -18,6 +18,8 @@ public class ChangeItemInHandWithItemTask extends Schedule {
     private final ItemStack addedItem;
     private final Material material;
     private final EquipmentSlot hand;
+    private final int slot;
+    private final boolean returnItemIfMoved;
 
     public ChangeItemInHandWithItemTask(Player player, ItemStack item, ItemStack addedItem, Material material) {
         this(player, null, item, addedItem, material);
@@ -25,8 +27,19 @@ public class ChangeItemInHandWithItemTask extends Schedule {
 
     public ChangeItemInHandWithItemTask(Player player, EquipmentSlot hand, ItemStack item, ItemStack addedItem,
             Material material) {
+        this(player, hand, item, addedItem, material, false);
+    }
+
+    public ChangeItemInHandWithItemTask(Player player, EquipmentSlot hand, ItemStack item, ItemStack addedItem,
+            Material material, boolean returnItemIfMoved) {
         this.player = new WeakReference<Player>(player);
         this.hand = hand;
+        this.returnItemIfMoved = returnItemIfMoved;
+        if (hand == null || !VersionUtil.v1_9_R1.isServerVersionHigher()) {
+            this.slot = -1;
+        } else {
+            this.slot = hand == EquipmentSlot.OFF_HAND ? 40 : player.getInventory().getHeldItemSlot();
+        }
         this.item = item;
         this.addedItem = addedItem;
         this.material = material;
@@ -39,6 +52,15 @@ public class ChangeItemInHandWithItemTask extends Schedule {
         boolean replacedHand = updateItem(player, item, material);
         if (replacedHand) {
             ItemUtil.addItem(player, addedItem);
+        } else if (returnItemIfMoved) {
+            ItemUtil.addItem(player, item);
+        }
+    }
+
+    public void runTaskLater(long delay) {
+        Player player = this.player.get();
+        if (player != null) {
+            runTaskLater(player, delay);
         }
     }
 
@@ -50,6 +72,15 @@ public class ChangeItemInHandWithItemTask extends Schedule {
         }
 
         PlayerInventory inventory = player.getInventory();
+
+        if (slot >= 0) {
+            ItemStack current = inventory.getItem(slot);
+            if (current == null || current.getType() != mat || current.getAmount() != 1) {
+                return false;
+            }
+            inventory.setItem(slot, item);
+            return true;
+        }
 
         if (hand != EquipmentSlot.OFF_HAND && inventory.getItemInMainHand().getType() == mat) {
             inventory.setItemInMainHand(item);

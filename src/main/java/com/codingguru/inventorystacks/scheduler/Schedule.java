@@ -1,6 +1,7 @@
 package com.codingguru.inventorystacks.scheduler;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
 
 import com.codingguru.inventorystacks.InventoryStacks;
 import com.codingguru.inventorystacks.handlers.ItemHandler;
@@ -25,5 +26,13 @@ public abstract class Schedule implements Runnable {
 			Bukkit.getScheduler().runTaskLater(InventoryStacks.getInstance(), this, delay);
 		}
 	}
-	
+
+	public void runTaskLater(Entity entity, long delay) {
+		if (USING_FOLIA) {
+			entity.getScheduler().runDelayed(InventoryStacks.getInstance(), t -> this.run(), null, Math.max(1L, delay));
+		} else {
+			Bukkit.getScheduler().runTaskLater(InventoryStacks.getInstance(), this, delay);
+		}
+	}
+
 }
