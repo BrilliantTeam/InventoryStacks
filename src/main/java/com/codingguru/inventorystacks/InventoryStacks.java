@@ -42,9 +42,7 @@ public class InventoryStacks extends JavaPlugin {
 
 		long itemChangeDelay = InventoryStacks.getInstance().getConfig().getLong("item-change-delay", 2L);
 
-		getServer().getPluginManager().registerEvents(new PlayerBucketEmpty(itemChangeDelay), this);
 		getServer().getPluginManager().registerEvents(new PlayerInteractEntity(itemChangeDelay), this);
-		getServer().getPluginManager().registerEvents(new PlayerItemConsume(itemChangeDelay), this);
 		getServer().getPluginManager().registerEvents(new PlayerItemDamage(itemChangeDelay), this);
 		getServer().getPluginManager().registerEvents(new BlockPlace(itemChangeDelay), this);
 		getServer().getPluginManager().registerEvents(new PlayerBucketFill(), this);

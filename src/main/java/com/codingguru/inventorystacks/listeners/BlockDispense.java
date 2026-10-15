@@ -2,7 +2,6 @@ package com.codingguru.inventorystacks.listeners;
 
 import com.codingguru.inventorystacks.scheduler.RegionSchedule;
 import com.codingguru.inventorystacks.util.BlockUtil;
-import com.codingguru.inventorystacks.util.XMaterialUtil;
 import io.papermc.paper.event.block.BlockPreDispenseEvent;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -27,8 +26,6 @@ public class BlockDispense implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockPreDispense(BlockPreDispenseEvent e) {
-        if (!VersionUtil.v1_19_R1.isServerVersionHigher()) return;
-
         final Block block = e.getBlock();
         final ItemStack eventItem = e.getItemStack();
 
@@ -74,7 +71,7 @@ public class BlockDispense implements Listener {
                 front.setType(Material.MUD);
 
                 // 還回去垃圾，還不回去就隨手亂丟垃圾
-                Material glassBottle = XMaterialUtil.GLASS_BOTTLE.parseMaterial();
+                Material glassBottle = Material.GLASS_BOTTLE;
                 if (glassBottle != null) {
                     ItemStack bottle = new ItemStack(glassBottle, 1);
                     if (inv.firstEmpty() == -1) {

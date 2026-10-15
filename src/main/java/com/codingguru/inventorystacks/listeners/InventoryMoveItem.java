@@ -13,14 +13,12 @@ import com.codingguru.inventorystacks.handlers.ItemHandler;
 import com.codingguru.inventorystacks.scheduler.FixBrewingStandTask;
 import com.codingguru.inventorystacks.util.ServerTypeUtil;
 import com.codingguru.inventorystacks.util.VersionUtil;
-import com.codingguru.inventorystacks.util.XMaterialUtil;
 
 public class InventoryMoveItem implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onInventoryMoveItem(InventoryMoveItemEvent e) {
-		if (VersionUtil.v1_20_R4.isServerVersionHigher()
-				&& ItemHandler.getInstance().getServerType() != ServerTypeUtil.PAPER)
+		if (ItemHandler.getInstance().getServerType() != ServerTypeUtil.PAPER)
 			return;
 
 		if (e.getDestination().getType() != InventoryType.BREWING)
@@ -35,7 +33,7 @@ public class InventoryMoveItem implements Listener {
 		if (!InventoryStacks.getInstance().getConfig().getBoolean("one-potion-per-slot"))
 			return;
 
-		if (!ItemHandler.getInstance().getCachedMaterialSizes().containsKey(XMaterialUtil.POTION))
+		if (!ItemHandler.getInstance().getCachedMaterialSizes().containsKey(Material.POTION))
 			return;
 
 		Inventory destination = e.getDestination();

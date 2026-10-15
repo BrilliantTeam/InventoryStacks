@@ -2,7 +2,6 @@ package com.codingguru.inventorystacks.listeners;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -18,7 +17,6 @@ import com.codingguru.inventorystacks.handlers.ItemHandler;
 import com.codingguru.inventorystacks.util.ItemUtil;
 import com.codingguru.inventorystacks.util.MessagesUtil;
 import com.codingguru.inventorystacks.util.RandomUtil;
-import com.codingguru.inventorystacks.util.XMaterialUtil;
 import com.google.common.collect.Lists;
 
 public class Commands implements Listener {
@@ -40,17 +38,15 @@ public class Commands implements Listener {
 
 		int amount = Integer.parseInt(command[3]);
 
-		Optional<XMaterialUtil> item = XMaterialUtil.matchXMaterial(itemName);
+		Material material = Material.matchMaterial(itemName);
 
-		if (item == null || !item.isPresent() || item.get() == null)
+		if (material == null)
 			return;
-
-		XMaterialUtil material = item.get();
 
 		if (!ItemHandler.getInstance().getCachedMaterialSizes().containsKey(material))
 			return;
 
-		if (isDamageable(material.parseMaterial())) {
+		if (isDamageable(material)) {
 			e.setCancelled(true);
 
 			List<Player> targetedPlayers = getTargetedPlayers(e.getPlayer(), command[1]);
@@ -63,7 +59,7 @@ public class Commands implements Listener {
 
 			itemName = itemName.toLowerCase().replaceAll("_", " ");
 			String niceName = itemName.substring(0, 1).toUpperCase() + itemName.substring(1);
-			ItemStack itemStack = material.parseItem();
+			ItemStack itemStack = new ItemStack(material);
 			itemStack.setAmount(amount);
 			targetedPlayers.stream().forEach(player -> {
 				ItemUtil.addItem(player, itemStack);
@@ -91,17 +87,15 @@ public class Commands implements Listener {
 
 		int amount = Integer.parseInt(command[3]);
 
-		Optional<XMaterialUtil> item = XMaterialUtil.matchXMaterial(itemName);
+		Material material = Material.matchMaterial(itemName);
 
-		if (item == null || !item.isPresent() || item.get() == null)
+		if (material == null)
 			return;
-
-		XMaterialUtil material = item.get();
 
 		if (!ItemHandler.getInstance().getCachedMaterialSizes().containsKey(material))
 			return;
 
-		if (isDamageable(material.parseMaterial())) {
+		if (isDamageable(material)) {
 			e.setCancelled(true);
 
 			List<Player> targetedPlayers = getTargetedPlayers(null, command[1]);
@@ -114,7 +108,7 @@ public class Commands implements Listener {
 
 			itemName = itemName.toLowerCase().replaceAll("_", " ");
 			String niceName = itemName.substring(0, 1).toUpperCase() + itemName.substring(1);
-			ItemStack itemStack = material.parseItem();
+			ItemStack itemStack = new ItemStack(material);
 			itemStack.setAmount(amount);
 			targetedPlayers.stream().forEach(player -> {
 				ItemUtil.addItem(player, itemStack);

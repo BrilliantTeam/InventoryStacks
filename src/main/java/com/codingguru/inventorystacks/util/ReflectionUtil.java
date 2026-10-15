@@ -3,7 +3,6 @@ package com.codingguru.inventorystacks.util;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.Optional;
 
 import org.bukkit.Material;
 
@@ -85,46 +84,18 @@ public final class ReflectionUtil {
 	}
 
 	public static boolean isUnstackableItem(Material material, int stack) {
-		return stack > 1 && VersionUtil.v26_2_R1.isServerVersionHigher()
-				&& material != null && material.getMaxDurability() > 0;
+		return stack > 1 && material != null && material.getMaxDurability() > 0;
 	}
 
 	public static boolean setItemField(String materialName, int stack) {
-		if (VersionUtil.v1_20_R4.isServerVersionHigher()) {
-			Object componentItem = getNmsItem(materialName);
-			if (componentItem == null) {
-				ConsoleUtil.warning("Failed to set the max item stack size of: " + materialName + ".");
-				return false;
-			}
-			return setComponentField(componentItem, materialName, stack);
-		}
+		Object componentItem = getNmsItem(materialName);
 
-		Field itemField;
-		Object item;
-
-		try {
-			itemField = VersionUtil.v1_18_R1.isServerVersionHigher() ? findItemClassFromName(materialName)
-					: ItemHandler.getInstance().getItemsClass().getDeclaredField(materialName.toUpperCase());
-		} catch (SecurityException | NoSuchFieldException e) {
-			e.printStackTrace();
+		if (componentItem == null) {
 			ConsoleUtil.warning("Failed to set the max item stack size of: " + materialName + ".");
 			return false;
 		}
 
-		try {
-			item = itemField.get(null);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-			ConsoleUtil.warning("Failed to set the max item stack size of: " + materialName + ".");
-			return false;
-		}
-
-		if (VersionUtil.v1_20_R4.isServerVersionHigher()) {
-			return setComponentField(item, materialName, stack);
-		}
-
-		return setClassField(ItemHandler.getInstance().getItemClass(), item,
-				ItemHandler.getInstance().getServerVersion().getFieldName(), stack, materialName);
+		return setComponentField(componentItem, materialName, stack);
 	}
 
 	private static Object getNmsItem(String materialName) {
@@ -178,88 +149,23 @@ public final class ReflectionUtil {
 	}
 
 	public static void updateAllItems(List<String> exemptMaterials, int stackSize) {
-		if (VersionUtil.v1_20_R4.isServerVersionHigher()) {
-			for (XMaterialUtil xMaterial : XMaterialUtil.VALUES) {
-				Material material = xMaterial.parseMaterial();
-				if (material == null || material == Material.AIR || !material.isItem()) {
-					continue;
-				}
-
-				if (isUnstackableItem(material, stackSize)) {
-					continue;
-				}
-
-				String name = material.name().toLowerCase(java.util.Locale.ROOT);
-				if (exemptMaterials.contains(name)) {
-					ConsoleUtil.info("Material: " + name + " is whitelisted. Skipping this entry.");
-					continue;
-				}
-
-				int defaultSize = getDefaultStackValue(Material.class, material, "maxStack", name);
-				ItemHandler.getInstance().getCachedMaterialSizes().put(xMaterial, defaultSize);
-				setClassField(Material.class, material, "maxStack", stackSize, name);
-
-				if (!InventoryStacks.getInstance().getConfig().getBoolean("only-stack-via-command")) {
-					setItemField(name, stackSize);
-				}
-			}
-			return;
-		}
-
-		for (Field field : ItemHandler.getInstance().getItemsClass().getFields()) {
-			Object found;
-
-			try {
-				found = field.get(null);
-			} catch (IllegalArgumentException | IllegalAccessException e1) {
-				e1.printStackTrace();
+		for (Material material : Material.values()) {
+			if (material == null || material == Material.AIR || !material.isItem() || material.isLegacy()) {
 				continue;
 			}
 
-			if (found == null)
-				continue;
-
-			String name;
-
-			try {
-				name = (String) ItemHandler.getInstance().getItemNameMethod().invoke(found);
-			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-					| ClassCastException e) {
-				e.printStackTrace();
+			if (isUnstackableItem(material, stackSize)) {
 				continue;
 			}
 
-			String[] split = name.split("\\.");
-
-			name = split[split.length - 1];
-
-			if (name.equalsIgnoreCase("air"))
-				continue;
-
+			String name = material.name().toLowerCase(java.util.Locale.ROOT);
 			if (exemptMaterials.contains(name)) {
 				ConsoleUtil.info("Material: " + name + " is whitelisted. Skipping this entry.");
 				continue;
 			}
 
-			Optional<XMaterialUtil> foundMaterial = XMaterialUtil.matchXMaterial(name);
-
-			if (!foundMaterial.isPresent()) {
-				ConsoleUtil
-						.warning("Could not find a valid material with the name: " + name + ". Skipping this entry.");
-				continue;
-			}
-
-			XMaterialUtil xMaterial = foundMaterial.get();
-			Material material = xMaterial.parseMaterial();
-
-			if (material == null || material == Material.AIR) {
-				ConsoleUtil.warning(
-						"Could not find a valid material with the name: " + name + ". Skipping this entry.");
-				continue;
-			}
-
 			int defaultSize = getDefaultStackValue(Material.class, material, "maxStack", name);
-			ItemHandler.getInstance().getCachedMaterialSizes().put(xMaterial, defaultSize);
+			ItemHandler.getInstance().getCachedMaterialSizes().put(material, defaultSize);
 			setClassField(Material.class, material, "maxStack", stackSize, name);
 
 			if (!InventoryStacks.getInstance().getConfig().getBoolean("only-stack-via-command")) {

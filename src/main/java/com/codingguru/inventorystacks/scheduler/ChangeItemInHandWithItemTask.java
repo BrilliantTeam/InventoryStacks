@@ -35,11 +35,8 @@ public class ChangeItemInHandWithItemTask extends Schedule {
         this.player = new WeakReference<Player>(player);
         this.hand = hand;
         this.returnItemIfMoved = returnItemIfMoved;
-        if (hand == null || !VersionUtil.v1_9_R1.isServerVersionHigher()) {
-            this.slot = -1;
-        } else {
-            this.slot = hand == EquipmentSlot.OFF_HAND ? 40 : player.getInventory().getHeldItemSlot();
-        }
+        this.slot = hand == null ? -1
+                : hand == EquipmentSlot.OFF_HAND ? 40 : player.getInventory().getHeldItemSlot();
         this.item = item;
         this.addedItem = addedItem;
         this.material = material;
@@ -64,13 +61,7 @@ public class ChangeItemInHandWithItemTask extends Schedule {
         }
     }
 
-    @SuppressWarnings("deprecation")
     private boolean updateItem(Player player, ItemStack item, Material mat) {
-        if (!VersionUtil.v1_9_R1.isServerVersionHigher()) {
-            player.getInventory().setItemInHand(item);
-            return true;
-        }
-
         PlayerInventory inventory = player.getInventory();
 
         if (slot >= 0) {

@@ -76,11 +76,7 @@ public class StackCmd implements CommandExecutor {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	public ItemStack getItemInHand(Player player) {
-		if (!VersionUtil.v1_9_R1.isServerVersionHigher()) {
-			return player.getInventory().getItemInHand();
-		}
 		return player.getInventory().getItemInMainHand();
 	}
 

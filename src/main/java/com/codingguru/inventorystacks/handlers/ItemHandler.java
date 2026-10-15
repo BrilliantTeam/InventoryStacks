@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -17,7 +16,6 @@ import com.codingguru.inventorystacks.util.ConsoleUtil;
 import com.codingguru.inventorystacks.util.ReflectionUtil;
 import com.codingguru.inventorystacks.util.ServerTypeUtil;
 import com.codingguru.inventorystacks.util.VersionUtil;
-import com.codingguru.inventorystacks.util.XMaterialUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -27,7 +25,7 @@ public class ItemHandler {
 
 	private final long itemChangeDelay = InventoryStacks.getInstance().getConfig().getLong("item-change-delay", 2L);
 
-	private Map<XMaterialUtil, Integer> cachedMaterials;
+	private Map<Material, Integer> cachedMaterials;
 
 	private VersionUtil serverVersion;
 	private ServerTypeUtil serverType;
@@ -55,10 +53,9 @@ public class ItemHandler {
 	}
 
 	public void resetMaterialsToDefaultValues() {
-		for (XMaterialUtil xMat : cachedMaterials.keySet()) {
-			Material mat = xMat.parseMaterial();
-			int defaultAmount = cachedMaterials.get(xMat);
-			String name = xMat.name();
+		for (Material mat : cachedMaterials.keySet()) {
+			int defaultAmount = cachedMaterials.get(mat);
+			String name = mat.name();
 			ReflectionUtil.setClassField(Material.class, mat, "maxStack", defaultAmount, name.toLowerCase());
 			ReflectionUtil.setItemField(name.toLowerCase(), defaultAmount);
 		}
@@ -66,53 +63,20 @@ public class ItemHandler {
 	}
 
 	public boolean setupServerVersion() {
-		String packageVersion = Bukkit.getServer().getClass().getPackage().getName();
-		String versionFound = packageVersion.substring(packageVersion.lastIndexOf('.') + 1);
-
 		setupServerType();
 
-		if (versionFound.equalsIgnoreCase("craftbukkit")) {
-			if (Bukkit.getBukkitVersion().startsWith("26.")) {
-				serverVersion = VersionUtil.v26_2_R1;
-				return true;
-			} else if (Bukkit.getBukkitVersion().startsWith("1.21.11")) {
-				serverVersion = VersionUtil.v1_21_R7;
-				return true;
-			} else if (Bukkit.getBukkitVersion().startsWith("1.21.10") || Bukkit.getBukkitVersion().startsWith("1.21.9")) {
-				serverVersion = VersionUtil.v1_21_R6;
-				return true;
-			} else if (Bukkit.getBukkitVersion().startsWith("1.21.8") || Bukkit.getBukkitVersion().startsWith("1.21.7") || Bukkit.getBukkitVersion().startsWith("1.21.6")) {
-				serverVersion = VersionUtil.v1_21_R5;
-				return true;
-			} else if (Bukkit.getBukkitVersion().startsWith("1.21.5")) {
-				serverVersion = VersionUtil.v1_21_R4;
-				return true;
-			} else if (Bukkit.getBukkitVersion().startsWith("1.21.4")) {
-				serverVersion = VersionUtil.v1_21_R3;
-				return true;
-			} else if (Bukkit.getBukkitVersion().startsWith("1.21.3")) {
-				serverVersion = VersionUtil.v1_21_R2;
-				return true;
-			} else if (Bukkit.getBukkitVersion().startsWith("1.21")) {
-				serverVersion = VersionUtil.v1_21_R1;
-				return true;
-			} else if (Bukkit.getBukkitVersion().startsWith("1.20.6")) {
-				serverVersion = VersionUtil.v1_20_R4;
-				return true;
-			} else if (Bukkit.getBukkitVersion().startsWith("1.20")) {
-				serverVersion = VersionUtil.v1_20_R3;
-				return true;
-			}
-			return false;
+		if (Bukkit.getBukkitVersion().startsWith("26.3")) {
+			serverVersion = VersionUtil.v26_3_R1;
+			return true;
 		}
 
-		for (VersionUtil version : VersionUtil.values()) {
-			if (versionFound.contains(version.name())) {
-				serverVersion = version;
-				return true;
-			}
+		if (Bukkit.getBukkitVersion().startsWith("26.2")) {
+			serverVersion = VersionUtil.v26_2_R1;
+			return true;
 		}
 
+		ConsoleUtil.warning("Unsupported server version: " + Bukkit.getBukkitVersion()
+				+ ". This build only supports 26.2 and 26.3.");
 		return false;
 	}
 
@@ -146,30 +110,28 @@ public class ItemHandler {
 			e.printStackTrace();
 		}
 
-		if (VersionUtil.v1_20_R4.isServerVersionHigher()) {
+		try {
+			dataComponentsClass = Class.forName("net.minecraft.core.component.DataComponents");
+			maxStackSize = dataComponentsClass.getField(serverType.getMaxStackField()).get(null);
+
+			Object sampleItem = itemsClass.getFields()[0].get(null);
+			Object itemComponents;
+
 			try {
-				dataComponentsClass = Class.forName("net.minecraft.core.component.DataComponents");
-				maxStackSize = dataComponentsClass.getField(serverType.getMaxStackField()).get(null);
-
-				Object sampleItem = itemsClass.getFields()[0].get(null);
-				Object itemComponents;
-
-				try {
-					itemsComponentsField = itemClass.getDeclaredField(serverType.getItemComponentsField());
-					itemsComponentsField.setAccessible(true);
-					itemComponents = itemsComponentsField.get(sampleItem);
-				} catch (NoSuchFieldException e) {
-					itemComponentsMethod = itemClass.getMethod(serverType.getItemComponentsField());
-					itemComponents = itemComponentsMethod.invoke(sampleItem);
-				}
-
-				componentsMapField = itemComponents.getClass().getDeclaredField(serverType.getComponentsMapField());
-				componentsMapField.setAccessible(true);
-				componentMapPutMethod = componentsMapField.getType().getMethod("put",
-						new Class[] { Object.class, Object.class });
-			} catch (SecurityException | IllegalArgumentException | ReflectiveOperationException e) {
-				e.printStackTrace();
+				itemsComponentsField = itemClass.getDeclaredField(serverType.getItemComponentsField());
+				itemsComponentsField.setAccessible(true);
+				itemComponents = itemsComponentsField.get(sampleItem);
+			} catch (NoSuchFieldException e) {
+				itemComponentsMethod = itemClass.getMethod(serverType.getItemComponentsField());
+				itemComponents = itemComponentsMethod.invoke(sampleItem);
 			}
+
+			componentsMapField = itemComponents.getClass().getDeclaredField(serverType.getComponentsMapField());
+			componentsMapField.setAccessible(true);
+			componentMapPutMethod = componentsMapField.getType().getMethod("put",
+					new Class[] { Object.class, Object.class });
+		} catch (SecurityException | IllegalArgumentException | ReflectiveOperationException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -178,16 +140,7 @@ public class ItemHandler {
 				InventoryStacks.getInstance().getConfig().getConfigurationSection("items").getKeys(true)));
 
 		for (String materialName : materialListRegex.keySet()) {
-			Optional<XMaterialUtil> foundMaterial = XMaterialUtil.matchXMaterial(materialName);
-
-			if (!foundMaterial.isPresent()) {
-				ConsoleUtil.warning(
-						"Could not find a valid material with the name: " + materialName + ". Skipping this entry.");
-				continue;
-			}
-
-			XMaterialUtil xMaterial = foundMaterial.get();
-			Material material = xMaterial.parseMaterial();
+			Material material = Material.matchMaterial(materialName);
 
 			if (material == null || material == Material.AIR) {
 				ConsoleUtil.warning(
@@ -203,10 +156,10 @@ public class ItemHandler {
 				continue;
 			}
 
-			String name = xMaterial.name();
+			String name = material.name();
 			int defaultSize = ReflectionUtil.getDefaultStackValue(Material.class, material, "maxStack",
 					name.toLowerCase());
-			getCachedMaterialSizes().put(xMaterial, defaultSize);
+			getCachedMaterialSizes().put(material, defaultSize);
 			ReflectionUtil.setClassField(Material.class, material, "maxStack", stackSize, name.toLowerCase());
 
 			if (!InventoryStacks.getInstance().getConfig().getBoolean("only-stack-via-command")) {
@@ -245,7 +198,7 @@ public class ItemHandler {
 		for (String regexPattern : materialNames) {
 			Pattern pattern = Pattern.compile(regexPattern);
 
-			for (XMaterialUtil material : XMaterialUtil.VALUES) {
+			for (Material material : Material.values()) {
 				String name = material.name();
 				Matcher m = pattern.matcher(name);
 
@@ -272,7 +225,7 @@ public class ItemHandler {
 		return stackSize;
 	}
 
-	public Map<XMaterialUtil, Integer> getCachedMaterialSizes() {
+	public Map<Material, Integer> getCachedMaterialSizes() {
 		return cachedMaterials;
 	}
 

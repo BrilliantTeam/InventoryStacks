@@ -7,7 +7,6 @@ import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.codingguru.inventorystacks.handlers.ItemHandler;
-import com.codingguru.inventorystacks.util.XMaterialUtil;
 
 public class FurnaceBurn implements Listener {
 
@@ -16,13 +15,13 @@ public class FurnaceBurn implements Listener {
 		if (e.getFuel() == null)
 			return;
 
-		if (e.getFuel().getType() != XMaterialUtil.LAVA_BUCKET.parseMaterial())
+		if (e.getFuel().getType() != Material.LAVA_BUCKET)
 			return;
 
 		if (e.getFuel().getAmount() <= 1)
 			return;
 
-		if (!ItemHandler.getInstance().getCachedMaterialSizes().containsKey(XMaterialUtil.LAVA_BUCKET))
+		if (!ItemHandler.getInstance().getCachedMaterialSizes().containsKey(Material.LAVA_BUCKET))
 			return;
 
 		e.getBlock().getWorld().dropItem(e.getBlock().getLocation(), new ItemStack(Material.BUCKET));

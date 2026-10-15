@@ -16,16 +16,9 @@ public final class BlockUtil {
     public static final Set<Material> MUD_CONVERTIBLE_BLOCKS = EnumSet.noneOf(Material.class);
 
     static {
-        addIfPresent(XMaterialUtil.DIRT);
-        addIfPresent(XMaterialUtil.COARSE_DIRT);
-        addIfPresent(XMaterialUtil.ROOTED_DIRT);
-    }
-
-    private static void addIfPresent(XMaterialUtil xMaterial) {
-        Material material = xMaterial.parseMaterial();
-        if (material != null) {
-            MUD_CONVERTIBLE_BLOCKS.add(material);
-        }
+        MUD_CONVERTIBLE_BLOCKS.add(Material.DIRT);
+        MUD_CONVERTIBLE_BLOCKS.add(Material.COARSE_DIRT);
+        MUD_CONVERTIBLE_BLOCKS.add(Material.ROOTED_DIRT);
     }
 
     public static Block getFrontBlock(Block block) {

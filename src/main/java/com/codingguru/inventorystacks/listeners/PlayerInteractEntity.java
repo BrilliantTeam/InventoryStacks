@@ -25,8 +25,6 @@ public class PlayerInteractEntity implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
-        if (!VersionUtil.v1_17_R1.isServerVersionHigher()) return;
-
         if (e.getPlayer().getGameMode() == GameMode.CREATIVE) {
             return;
         }

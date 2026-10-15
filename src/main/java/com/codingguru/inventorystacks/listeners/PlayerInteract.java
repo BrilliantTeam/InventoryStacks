@@ -10,7 +10,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.codingguru.inventorystacks.util.VersionUtil;
-import com.codingguru.inventorystacks.util.XMaterialUtil;
 
 public class PlayerInteract implements Listener {
 
@@ -22,10 +21,10 @@ public class PlayerInteract implements Listener {
 		if (e.getAction() != Action.RIGHT_CLICK_BLOCK)
 			return;
 
-		if (e.getClickedBlock().getType() != XMaterialUtil.JUKEBOX.parseMaterial())
+		if (e.getClickedBlock().getType() != Material.JUKEBOX)
 			return;
 
-		if (e.getItem() == null || e.getItem().getType() == XMaterialUtil.AIR.parseMaterial())
+		if (e.getItem() == null || e.getItem().getType() == Material.AIR)
 			return;
 
 		ItemStack holding = e.getItem();
@@ -52,26 +51,26 @@ public class PlayerInteract implements Listener {
 	}
 
 	private boolean isMusicDisc(Material type) {
-		return type == XMaterialUtil.MUSIC_DISC_11.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_13.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_5.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_BLOCKS.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_CAT.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_CHIRP.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_CREATOR.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_CREATOR_MUSIC_BOX.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_FAR.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_LAVA_CHICKEN.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_MALL.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_MELLOHI.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_OTHERSIDE.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_PIGSTEP.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_PRECIPICE.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_RELIC.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_STAL.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_STRAD.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_TEARS.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_WAIT.parseMaterial()
-				|| type == XMaterialUtil.MUSIC_DISC_WARD.parseMaterial();
+		return type == Material.MUSIC_DISC_11
+				|| type == Material.MUSIC_DISC_13
+				|| type == Material.MUSIC_DISC_5
+				|| type == Material.MUSIC_DISC_BLOCKS
+				|| type == Material.MUSIC_DISC_CAT
+				|| type == Material.MUSIC_DISC_CHIRP
+				|| type == Material.MUSIC_DISC_CREATOR
+				|| type == Material.MUSIC_DISC_CREATOR_MUSIC_BOX
+				|| type == Material.MUSIC_DISC_FAR
+				|| type == Material.MUSIC_DISC_LAVA_CHICKEN
+				|| type == Material.MUSIC_DISC_MALL
+				|| type == Material.MUSIC_DISC_MELLOHI
+				|| type == Material.MUSIC_DISC_OTHERSIDE
+				|| type == Material.MUSIC_DISC_PIGSTEP
+				|| type == Material.MUSIC_DISC_PRECIPICE
+				|| type == Material.MUSIC_DISC_RELIC
+				|| type == Material.MUSIC_DISC_STAL
+				|| type == Material.MUSIC_DISC_STRAD
+				|| type == Material.MUSIC_DISC_TEARS
+				|| type == Material.MUSIC_DISC_WAIT
+				|| type == Material.MUSIC_DISC_WARD;
 	}
 }

@@ -1,5 +1,6 @@
 package com.codingguru.inventorystacks.listeners;
 
+import org.bukkit.Material;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -15,7 +16,6 @@ import org.bukkit.inventory.ItemStack;
 import com.codingguru.inventorystacks.scheduler.ChangeItemInHandWithItemTask;
 import com.codingguru.inventorystacks.util.ItemUtil;
 import com.codingguru.inventorystacks.util.VersionUtil;
-import com.codingguru.inventorystacks.util.XMaterialUtil;
 
 public class BlockPlace implements Listener {
 
@@ -46,9 +46,6 @@ public class BlockPlace implements Listener {
 
 	@EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
 	public void onBlockPlace(BlockPlaceEvent e) {
-		if (!VersionUtil.v1_17_R1.isServerVersionHigher())
-			return;
-
 		Player player = e.getPlayer();
 
 		if (player.getGameMode() == GameMode.CREATIVE)
@@ -62,7 +59,7 @@ public class BlockPlace implements Listener {
 			holding = player.getInventory().getItemInOffHand();
 		}
 
-		if (holding.getType() != XMaterialUtil.POWDER_SNOW_BUCKET.parseMaterial())
+		if (holding.getType() != Material.POWDER_SNOW_BUCKET)
 			return;
 
 		int amount = holding.getAmount();
@@ -74,12 +71,12 @@ public class BlockPlace implements Listener {
 		clone.setAmount(amount - 1);
 
 		if (setItemLeftInHand(clone)) {
-			ItemUtil.addItem(player, new ItemStack(XMaterialUtil.BUCKET.parseMaterial()));
+			ItemUtil.addItem(player, new ItemStack(Material.BUCKET));
 			return;
 		}
 
 		ChangeItemInHandWithItemTask changeItemTask = new ChangeItemInHandWithItemTask(e.getPlayer(), e.getHand(), clone,
-				new ItemStack(XMaterialUtil.BUCKET.parseMaterial()), XMaterialUtil.BUCKET.parseMaterial(), true);
+				new ItemStack(Material.BUCKET), Material.BUCKET, true);
 		changeItemTask.runTaskLater(itemChangeDelay);
 	}
 
