@@ -51,26 +51,6 @@ public class PlayerInteract implements Listener {
 	}
 
 	private boolean isMusicDisc(Material type) {
-		return type == Material.MUSIC_DISC_11
-				|| type == Material.MUSIC_DISC_13
-				|| type == Material.MUSIC_DISC_5
-				|| type == Material.MUSIC_DISC_BLOCKS
-				|| type == Material.MUSIC_DISC_CAT
-				|| type == Material.MUSIC_DISC_CHIRP
-				|| type == Material.MUSIC_DISC_CREATOR
-				|| type == Material.MUSIC_DISC_CREATOR_MUSIC_BOX
-				|| type == Material.MUSIC_DISC_FAR
-				|| type == Material.MUSIC_DISC_LAVA_CHICKEN
-				|| type == Material.MUSIC_DISC_MALL
-				|| type == Material.MUSIC_DISC_MELLOHI
-				|| type == Material.MUSIC_DISC_OTHERSIDE
-				|| type == Material.MUSIC_DISC_PIGSTEP
-				|| type == Material.MUSIC_DISC_PRECIPICE
-				|| type == Material.MUSIC_DISC_RELIC
-				|| type == Material.MUSIC_DISC_STAL
-				|| type == Material.MUSIC_DISC_STRAD
-				|| type == Material.MUSIC_DISC_TEARS
-				|| type == Material.MUSIC_DISC_WAIT
-				|| type == Material.MUSIC_DISC_WARD;
+		return type.name().startsWith("MUSIC_DISC_");
 	}
 }
