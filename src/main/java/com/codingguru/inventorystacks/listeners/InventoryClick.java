@@ -10,6 +10,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BundleMeta;
 
 import com.codingguru.inventorystacks.InventoryStacks;
 import com.codingguru.inventorystacks.handlers.ItemHandler;
@@ -50,14 +51,45 @@ public class InventoryClick implements Listener {
 		if (cursor == null || current == null)
 			return;
 
-		if (Tag.ITEMS_BUNDLES.isTagged(cursor.getType()) ? isRaisedStack(current)
-				: Tag.ITEMS_BUNDLES.isTagged(current.getType()) && isRaisedStack(cursor))
-			e.setCancelled(true);
-	}
+		boolean cursorIsBundle = Tag.ITEMS_BUNDLES.isTagged(cursor.getType());
+		ItemStack bundle = cursorIsBundle ? cursor : current;
+		ItemStack item = cursorIsBundle ? current : cursor;
 
-	private boolean isRaisedStack(ItemStack item) {
+		if (!Tag.ITEMS_BUNDLES.isTagged(bundle.getType()) || item.getType() == Material.AIR)
+			return;
+
+		if (!(bundle.getItemMeta() instanceof BundleMeta meta))
+			return;
+
 		Integer defaultSize = ItemHandler.getInstance().getCachedMaterialSizes().get(item.getType());
-		return defaultSize != null && item.getMaxStackSize() > defaultSize;
+
+		if (defaultSize == null || item.getMaxStackSize() <= defaultSize)
+			return;
+
+		int inBundle = meta.getItems().stream().filter(item::isSimilar).mapToInt(ItemStack::getAmount).sum();
+		int allowed = defaultSize - inBundle;
+
+		if (allowed <= 0) {
+			e.setCancelled(true);
+			return;
+		}
+
+		int excess = item.getAmount() - allowed;
+
+		if (excess <= 0)
+			return;
+
+		ItemStack kept = item.clone();
+		kept.setAmount(allowed);
+
+		if (cursorIsBundle)
+			e.setCurrentItem(kept);
+		else
+			e.getView().setCursor(kept);
+
+		ItemStack returned = item.clone();
+		returned.setAmount(excess);
+		ItemUtil.addItem((Player) e.getWhoClicked(), returned);
 	}
 
 	@EventHandler(ignoreCancelled = true)
