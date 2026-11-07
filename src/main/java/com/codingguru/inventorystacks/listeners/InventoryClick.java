@@ -1,6 +1,7 @@
 package com.codingguru.inventorystacks.listeners;
 
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -36,6 +37,27 @@ public class InventoryClick implements Listener {
 			return;
 
 		e.setCancelled(true);
+	}
+
+	@EventHandler(ignoreCancelled = true)
+	public void onBundleInsert(InventoryClickEvent e) {
+		if (e.getClick() != ClickType.LEFT)
+			return;
+
+		ItemStack cursor = e.getCursor();
+		ItemStack current = e.getCurrentItem();
+
+		if (cursor == null || current == null)
+			return;
+
+		if (Tag.ITEMS_BUNDLES.isTagged(cursor.getType()) ? isRaisedStack(current)
+				: Tag.ITEMS_BUNDLES.isTagged(current.getType()) && isRaisedStack(cursor))
+			e.setCancelled(true);
+	}
+
+	private boolean isRaisedStack(ItemStack item) {
+		Integer defaultSize = ItemHandler.getInstance().getCachedMaterialSizes().get(item.getType());
+		return defaultSize != null && item.getMaxStackSize() > defaultSize;
 	}
 
 	@EventHandler(ignoreCancelled = true)
