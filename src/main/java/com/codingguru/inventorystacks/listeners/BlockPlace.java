@@ -51,6 +51,9 @@ public class BlockPlace implements Listener {
 		if (player.getGameMode() == GameMode.CREATIVE)
 			return;
 
+		if (e.getBlockPlaced().getType() != Material.POWDER_SNOW)
+			return;
+
 		ItemStack holding;
 
 		if (e.getHand() == EquipmentSlot.HAND) {
